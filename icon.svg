@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="64" fill="#1d1c16"/>
+  <!-- Three stumps -->
+  <rect x="196" y="160" width="10" height="220" rx="2" fill="#F5F2ED"/>
+  <rect x="251" y="160" width="10" height="220" rx="2" fill="#F5F2ED"/>
+  <rect x="306" y="160" width="10" height="220" rx="2" fill="#F5F2ED"/>
+  <!-- Pointed tops -->
+  <polygon points="196,160 201,148 206,160" fill="#F5F2ED"/>
+  <polygon points="251,160 256,148 261,160" fill="#F5F2ED"/>
+  <polygon points="306,160 311,148 316,160" fill="#F5F2ED"/>
+  <!-- Bail -->
+  <rect x="198" y="154" width="116" height="6" rx="2" fill="#F5F2ED"/>
+</svg>
