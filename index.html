@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cricket Journal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #F5F2ED;
+      color: #111;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ── */
+    header {
+      padding: 48px 40px 32px;
+      border-bottom: 2px solid #111;
+    }
+
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 32px;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+    }
+
+    header p {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #666;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    /* ── Navigation Tabs ── */
+    nav {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid #111;
+    }
+
+    nav button {
+      flex: 1;
+      padding: 14px 24px;
+      background: none;
+      border: none;
+      border-right: 1px solid #111;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      color: #888;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    nav button:last-child {
+      border-right: none;
+    }
+
+    nav button:hover {
+      background: rgba(0, 0, 0, 0.03);
+    }
+
+    nav button.active {
+      color: #111;
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    /* ── Main Content ── */
+    main {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* ── Month Header ── */
+    .month-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .month-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+      font-size: 22px;
+    }
+
+    .month-nav {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .month-nav button {
+      background: none;
+      border: 1px solid #111;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      padding: 4px 12px;
+      cursor: pointer;
+      color: #111;
+      transition: background 0.15s;
+    }
+
+    .month-nav button:hover {
+      background: #111;
+      color: #F5F2ED;
+    }
+
+    .month-nav span {
+      font-size: 12px;
+      color: #888;
+    }
+
+    /* ── Fixture Cards ── */
+    .fixture-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .fixture-card {
+      border: 1px solid #111;
+      margin-bottom: -1px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .fixture-card:hover {
+      background: rgba(0, 0, 0, 0.02);
+    }
+
+    /* ── Training Card — subtle dashed style ── */
+    .fixture-card.training-card {
+      border: 1px dashed #aaa;
+    }
+
+    .fixture-card.training-card .fixture-date {
+      border-right: 1px dashed #aaa;
+    }
+
+    .fixture-card.training-card .fixture-date .day {
+      font-size: 22px;
+      color: #888;
+    }
+
+    .fixture-card.training-card .fixture-info .opponent {
+      font-size: 14px;
+      font-weight: 400;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #777;
+    }
+
+    .fixture-card.training-card .fixture-time {
+      color: #999;
+    }
+
+    .fixture-card.training-card .fixture-expand-icon {
+      color: #ddd;
+    }
+
+    .fixture-card.training-card.expanded .fixture-detail {
+      border-top: 1px dashed #aaa;
+    }
+
+    .fixture-card-header {
+      display: flex;
+      align-items: stretch;
+      min-height: 72px;
+    }
+
+    /* Training cards are more compact */
+    .fixture-card.training-card .fixture-card-header {
+      min-height: 56px;
+    }
+
+    .fixture-date {
+      width: 100px;
+      min-width: 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid #111;
+      padding: 12px 8px;
+    }
+
+    .fixture-date .day {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .fixture-date .weekday {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    .fixture-info {
+      flex: 1;
+      padding: 14px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .fixture-info .opponent {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .fixture-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 4px;
+      font-size: 11px;
+      color: #888;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .fixture-type-badge {
+      display: inline-block;
+      padding: 1px 8px;
+      border: 1px solid #111;
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .fixture-type-badge.training {
+      border-color: #aaa;
+      color: #aaa;
+      border-style: dashed;
+    }
+
+    .fixture-type-badge.cup {
+      border-color: #111;
+    }
+
+    .fixture-ha {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      color: #999;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    .fixture-week {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: #bbb;
+      letter-spacing: 0.5px;
+    }
+
+    .fixture-tbc {
+      font-size: 10px;
+      color: #bbb;
+      letter-spacing: 0.5px;
+      margin-left: 6px;
+    }
+
+    .fixture-time {
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      font-size: 13px;
+      color: #444;
+      border-left: 1px solid #ddd;
+    }
+
+    .fixture-expand-icon {
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      font-size: 16px;
+      color: #ccc;
+      transition: transform 0.2s;
+    }
+
+    .fixture-card.expanded .fixture-expand-icon {
+      transform: rotate(90deg);
+      color: #111;
+    }
+
+    .fixture-card.training-card.expanded .fixture-expand-icon {
+      color: #888;
+    }
+
+    /* ── Expanded Detail ── */
+    .fixture-detail {
+      display: none;
+      border-top: 1px solid #111;
+      padding: 24px 20px;
+    }
+
+    .fixture-card.expanded .fixture-detail {
+      display: block;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .detail-item label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 4px;
+    }
+
+    .detail-item span {
+      font-size: 14px;
+    }
+
+    .detail-item a {
+      color: #111;
+      text-decoration: none;
+      border-bottom: 1px solid #ccc;
+      transition: border-color 0.15s;
+    }
+
+    .detail-item a:hover {
+      border-color: #111;
+    }
+
+    .analysis-section label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 8px;
+    }
+
+    .analysis-section textarea {
+      width: 100%;
+      min-height: 140px;
+      padding: 16px;
+      border: 1px solid #ccc;
+      background: #FDFCFA;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #111;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .analysis-section textarea:focus {
+      border-color: #111;
+    }
+
+    .analysis-section textarea::placeholder {
+      color: #bbb;
+    }
+
+    .save-indicator {
+      margin-top: 6px;
+      font-size: 10px;
+      color: #aaa;
+      letter-spacing: 0.5px;
+      text-align: right;
+      min-height: 16px;
+    }
+
+    /* ── League Table ── */
+    .tab-container {
+      display: none;
+    }
+
+    .tab-container.visible {
+      display: block;
+    }
+
+    .league-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .league-subtitle {
+      font-size: 11px;
+      color: #888;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .league-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .league-table thead th {
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #888;
+      font-weight: 500;
+      padding: 8px 10px;
+      border-bottom: 2px solid #111;
+      text-align: left;
+    }
+
+    .league-table thead th:not(:first-child):not(:nth-child(2)) {
+      text-align: center;
+      padding: 8px 6px;
+    }
+
+    .league-table tbody tr {
+      border-bottom: 1px solid #ddd;
+    }
+
+    .league-table tbody tr:last-child {
+      border-bottom: 2px solid #111;
+    }
+
+    .league-table tbody tr.highlight {
+      background: rgba(0, 0, 0, 0.03);
+    }
+
+    .league-table tbody td {
+      padding: 10px 10px;
+    }
+
+    .league-table tbody td:not(:first-child):not(:nth-child(2)) {
+      text-align: center;
+      padding: 10px 6px;
+    }
+
+    .league-table .pos {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 15px;
+      width: 30px;
+    }
+
+    .league-table .team-name {
+      font-weight: 500;
+    }
+
+    .league-table .pts {
+      font-weight: 700;
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+    }
+
+    /* ── Empty State ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #aaa;
+    }
+
+    .empty-state p {
+      font-size: 13px;
+    }
+
+    /* ── The Nets Game ── */
+    .nets-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .nets-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .nets-subtitle {
+      font-size: 11px;
+      color: #888;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #ccc;
+      width: 100%;
+      text-align: center;
+    }
+
+    .nets-canvas-wrap {
+      border: 1px solid #111;
+      position: relative;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    #nets-canvas {
+      display: block;
+      cursor: grab;
+    }
+
+    #nets-canvas:active {
+      cursor: grabbing;
+    }
+
+    .nets-score {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 400px;
+      margin-top: 16px;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #888;
+    }
+
+    .nets-score span {
+      color: #111;
+      font-weight: 500;
+    }
+
+    .nets-instructions {
+      margin-top: 20px;
+      font-size: 11px;
+      color: #aaa;
+      letter-spacing: 0.5px;
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    .nets-reset {
+      margin-top: 16px;
+      background: none;
+      border: 1px solid #ccc;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 6px 20px;
+      cursor: pointer;
+      color: #888;
+      transition: all 0.15s;
+    }
+
+    .nets-reset:hover {
+      border-color: #111;
+      color: #111;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      header {
+        padding: 32px 20px 24px;
+      }
+
+      header h1 {
+        font-size: 24px;
+      }
+
+      main {
+        padding: 24px 16px 60px;
+      }
+
+      .fixture-date {
+        width: 72px;
+        min-width: 72px;
+      }
+
+      .fixture-date .day {
+        font-size: 22px;
+      }
+
+      .fixture-card.training-card .fixture-date .day {
+        font-size: 18px;
+      }
+
+      .fixture-time {
+        display: none;
+      }
+
+      .detail-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      nav button {
+        font-size: 10px;
+        padding: 12px 8px;
+        letter-spacing: 0.8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Cricket Journal</h1>
+    <p>Fixtures &amp; Training Log</p>
+  </header>
+
+  <nav>
+    <button class="active" data-tab="fixtures">Fixtures</button>
+    <button data-tab="league">League Table</button>
+    <button data-tab="nets">The Nets</button>
+  </nav>
+
+  <main>
+    <!-- Fixtures View -->
+    <div class="tab-container visible" id="fixtures-view">
+      <div class="month-header">
+        <h2 id="month-title"></h2>
+        <div class="month-nav">
+          <button id="prev-month">&larr; Prev</button>
+          <span id="year-display"></span>
+          <button id="next-month">Next &rarr;</button>
+        </div>
+      </div>
+      <div class="fixture-list" id="fixture-list"></div>
+    </div>
+
+    <!-- League Table View -->
+    <div class="tab-container" id="league-view">
+      <h2 class="league-title">2nd XI Premier Division</h2>
+      <p class="league-subtitle">LDCC 2026 Season &mdash; Pre-Season</p>
+      <table class="league-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Team</th>
+            <th>P</th>
+            <th>W</th>
+            <th>L</th>
+            <th>D</th>
+            <th>NR</th>
+            <th>Pts</th>
+          </tr>
+        </thead>
+        <tbody id="league-body"></tbody>
+      </table>
+    </div>
+
+    <!-- The Nets Game -->
+    <div class="tab-container" id="nets-view">
+      <div class="nets-container">
+        <h2 class="nets-title">The Nets</h2>
+        <p class="nets-subtitle">Throw at the Stumps</p>
+        <div class="nets-canvas-wrap">
+          <canvas id="nets-canvas" width="400" height="520"></canvas>
+        </div>
+        <div class="nets-score">
+          <div>Throws: <span id="nets-throws">0</span></div>
+          <div>Hits: <span id="nets-hits">0</span></div>
+          <div>Accuracy: <span id="nets-accuracy">—</span></div>
+        </div>
+        <p class="nets-instructions">Drag the ball and flick it toward the stumps.</p>
+        <button class="nets-reset" id="nets-reset">Reset Score</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ══════════════════════════════════════
+    //  DATA
+    // ══════════════════════════════════════
+
+    // LDCC 2nd XI Premier Division — 2026 Season (Leigh fixtures only)
+    const matchFixtures = [
+      { id: 'fix-01', date: '2026-04-25', time: '12:45', opponent: 'Birkenhead Park', type: 'League', ha: 'A', week: 1, tbc: false, location: 'Birkenhead Park CC', locationQuery: 'Birkenhead Park Cricket Club', notes: '' },
+      { id: 'fix-02', date: '2026-05-02', time: '12:45', opponent: 'Wallasey',        type: 'League', ha: 'A', week: 2, tbc: false, location: 'Wallasey CC',         locationQuery: 'Wallasey Cricket Club',         notes: '' },
+      { id: 'fix-03', date: '2026-05-09', time: '12:45', opponent: 'Sefton Park',     type: 'League', ha: 'H', week: 3, tbc: false, location: 'Leigh CC',             locationQuery: 'Leigh Cricket Club',            notes: '' },
+      { id: 'fix-04', date: '2026-05-16', time: '12:45', opponent: 'Northern',        type: 'League', ha: 'A', week: 4, tbc: false, location: 'Northern CC',           locationQuery: 'Northern Cricket Club Liverpool', notes: '' },
+      { id: 'fix-05', date: '2026-05-23', time: '12:45', opponent: 'Rainford',        type: 'League', ha: 'H', week: 5, tbc: false, location: 'Leigh CC',             locationQuery: 'Leigh Cricket Club',            notes: '' },
+      { id: 'fix-06', date: '2026-05-30', time: '12:45', opponent: 'Wigan',           type: 'League', ha: 'A', week: 6, tbc: false, location: 'Wigan CC',             locationQuery: 'Wigan Cricket Club',            notes: '' },
+      { id: 'fix-07', date: '2026-06-06', time: '12:45', opponent: 'Colwyn Bay',      type: 'League', ha: 'H', week: 7, tbc: false, location: 'Leigh CC',             locationQuery: 'Leigh Cricket Club',            notes: '' },
+      { id: 'fix-08', date: '2026-06-13', time: '12:45', opponent: 'Formby',          type: 'League', ha: 'A', week: 8, tbc: false, location: 'Formby CC',            locationQuery: 'Formby Cricket Club',           notes: '' },
+      { id: 'fix-09', date: '2026-06-20', time: '12:45', opponent: 'Newton-le-Willows', type: 'League', ha: 'H', week: 9, tbc: false, location: 'Leigh CC',           locationQuery: 'Leigh Cricket Club',            notes: '' },
+      { id: 'fix-10', date: '2026-06-27', time: '12:45', opponent: 'Wavertree',       type: 'League', ha: 'A', week: 10, tbc: false, location: 'Wavertree CC',        locationQuery: 'Wavertree Cricket Club Liverpool', notes: '' },
+      { id: 'fix-11', date: '2026-07-04', time: '12:45', opponent: 'Ormskirk',        type: 'League', ha: 'H', week: 11, tbc: false, location: 'Leigh CC',            locationQuery: 'Leigh Cricket Club',            notes: '' },
+      { id: 'fix-12', date: '2026-07-11', time: '12:45', opponent: 'Wigan',           type: 'League', ha: 'H', week: 12, tbc: false, location: 'Leigh CC',            locationQuery: 'Leigh Cricket Club',            notes: '' },
+      { id: 'fix-13', date: '2026-07-18', time: '12:45', opponent: 'Colwyn Bay',      type: 'League', ha: 'A', week: 13, tbc: false, location: 'Colwyn Bay CC',       locationQuery: 'Colwyn Bay Cricket Club',       notes: '' },
+      { id: 'fix-14', date: '2026-07-25', time: '12:45', opponent: 'Formby',          type: 'League', ha: 'H', week: 14, tbc: false, location: 'Leigh CC',            locationQuery: 'Leigh Cricket Club',            notes: '' },
+      { id: 'fix-15', date: '2026-08-01', time: '12:45', opponent: 'Newton-le-Willows', type: 'League', ha: 'A', week: 15, tbc: false, location: 'Newton-le-Willows CC', locationQuery: 'Newton-le-Willows Cricket Club', notes: '' },
+      { id: 'fix-16', date: '2026-08-08', time: '12:45', opponent: 'Wavertree',       type: 'League', ha: 'H', week: 16, tbc: false, location: 'Leigh CC',            locationQuery: 'Leigh Cricket Club',            notes: '' },
+      { id: 'fix-17', date: '2026-08-15', time: '12:45', opponent: 'Ormskirk',        type: 'League', ha: 'A', week: 17, tbc: false, location: 'Ormskirk CC',         locationQuery: 'Ormskirk Cricket Club',         notes: '' },
+      { id: 'fix-18', date: '2026-08-22', time: '12:45', opponent: 'Rainford',        type: 'League', ha: 'A', week: 18, tbc: false, location: 'Rainford CC',         locationQuery: 'Rainford Cricket Club',         notes: '' },
+      { id: 'fix-19', date: '2026-08-29', time: '12:45', opponent: 'Northern',        type: 'League', ha: 'H', week: 19, tbc: false, location: 'Leigh CC',            locationQuery: 'Leigh Cricket Club',            notes: '' },
+      { id: 'fix-20', date: '2026-09-05', time: '12:45', opponent: 'Sefton Park',     type: 'League', ha: 'A', week: 20, tbc: false, location: 'Sefton Park CC',      locationQuery: 'Sefton Park Cricket Club',      notes: '' },
+      { id: 'fix-21', date: '2026-09-12', time: '12:45', opponent: 'Wallasey',        type: 'League', ha: 'H', week: 21, tbc: false, location: 'Leigh CC',            locationQuery: 'Leigh Cricket Club',            notes: '' },
+      { id: 'fix-22', date: '2026-09-19', time: '12:45', opponent: 'Birkenhead Park', type: 'League', ha: 'H', week: 22, tbc: true,  location: 'Leigh CC',            locationQuery: 'Leigh Cricket Club',            notes: '' }
+    ];
+
+    // Generate recurring Thursday training: Apr 2 – Sep 24, 2026
+    function generateTrainingSessions() {
+      const sessions = [];
+      const start = new Date(2026, 3, 2); // Apr 2
+      const end = new Date(2026, 8, 24);  // Sep 24
+      let current = new Date(start);
+      let idx = 1;
+
+      while (current <= end) {
+        if (current.getDay() === 4) { // Thursday
+          const yyyy = current.getFullYear();
+          const mm = String(current.getMonth() + 1).padStart(2, '0');
+          const dd = String(current.getDate()).padStart(2, '0');
+          sessions.push({
+            id: 'train-' + String(idx).padStart(3, '0'),
+            date: `${yyyy}-${mm}-${dd}`,
+            time: '18:00 – 20:00',
+            opponent: 'Weekly Training',
+            type: 'Training',
+            location: 'Home Ground Nets',
+            locationQuery: 'cricket nets near me',
+            notes: ''
+          });
+          idx++;
+        }
+        current.setDate(current.getDate() + 1);
+      }
+      return sessions;
+    }
+
+    // Merge all fixtures
+    const fixtures = [...matchFixtures, ...generateTrainingSessions()];
+
+    // 2nd XI Premier Division — pre-season placeholder standings
+    const leagueData = [
+      { team: 'Ormskirk',          p: 0, w: 0, l: 0, d: 0, nr: 0, pts: 0 },
+      { team: 'Birkenhead Park',   p: 0, w: 0, l: 0, d: 0, nr: 0, pts: 0 },
+      { team: 'Colwyn Bay',        p: 0, w: 0, l: 0, d: 0, nr: 0, pts: 0 },
+      { team: 'Formby',            p: 0, w: 0, l: 0, d: 0, nr: 0, pts: 0 },
+      { team: 'Leigh',             p: 0, w: 0, l: 0, d: 0, nr: 0, pts: 0, highlight: true },
+      { team: 'Newton-le-Willows', p: 0, w: 0, l: 0, d: 0, nr: 0, pts: 0 },
+      { team: 'Northern',          p: 0, w: 0, l: 0, d: 0, nr: 0, pts: 0 },
+      { team: 'Rainford',          p: 0, w: 0, l: 0, d: 0, nr: 0, pts: 0 },
+      { team: 'Sefton Park',       p: 0, w: 0, l: 0, d: 0, nr: 0, pts: 0 },
+      { team: 'Wallasey',          p: 0, w: 0, l: 0, d: 0, nr: 0, pts: 0 },
+      { team: 'Wavertree',         p: 0, w: 0, l: 0, d: 0, nr: 0, pts: 0 },
+      { team: 'Wigan',             p: 0, w: 0, l: 0, d: 0, nr: 0, pts: 0 }
+    ];
+
+    // ══════════════════════════════════════
+    //  CALENDAR STATE
+    // ══════════════════════════════════════
+
+    let currentMonth = 3; // April (0-indexed) — first month with data
+    let currentYear = 2026;
+
+    const MONTHS = [
+      'January','February','March','April','May','June',
+      'July','August','September','October','November','December'
+    ];
+    const WEEKDAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+    // ══════════════════════════════════════
+    //  LOCALSTORAGE
+    // ══════════════════════════════════════
+
+    function loadNotes() {
+      const saved = localStorage.getItem('cricket-journal-notes');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        fixtures.forEach(f => {
+          if (parsed[f.id]) f.notes = parsed[f.id];
+        });
+      }
+    }
+
+    function saveNote(id, text) {
+      const saved = JSON.parse(localStorage.getItem('cricket-journal-notes') || '{}');
+      saved[id] = text;
+      localStorage.setItem('cricket-journal-notes', JSON.stringify(saved));
+    }
+
+    // ══════════════════════════════════════
+    //  RENDER FIXTURES
+    // ══════════════════════════════════════
+
+    function renderFixtures() {
+      const title = document.getElementById('month-title');
+      const yearDisp = document.getElementById('year-display');
+      const list = document.getElementById('fixture-list');
+
+      title.textContent = MONTHS[currentMonth];
+      yearDisp.textContent = currentYear;
+
+      const monthFixtures = fixtures.filter(f => {
+        const d = new Date(f.date + 'T00:00:00');
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+      });
+
+      if (monthFixtures.length === 0) {
+        list.innerHTML = '<div class="empty-state"><p>No fixtures this month.</p></div>';
+        return;
+      }
+
+      // Sort chronologically
+      monthFixtures.sort((a, b) => new Date(a.date + 'T00:00:00') - new Date(b.date + 'T00:00:00'));
+
+      list.innerHTML = monthFixtures.map(f => {
+        const d = new Date(f.date + 'T00:00:00');
+        const day = d.getDate();
+        const weekday = WEEKDAYS[d.getDay()];
+        const mapUrl = 'https://www.google.com/maps/search/' + encodeURIComponent(f.locationQuery);
+        const isTraining = f.type === 'Training';
+        const isMatch = !isTraining;
+        const cardClass = isTraining ? 'fixture-card training-card' : 'fixture-card';
+        const badgeClass = isTraining ? 'fixture-type-badge training' : 'fixture-type-badge';
+        const placeholderText = isTraining
+          ? 'Session notes, drills covered, areas to work on...'
+          : 'Performance notes, key moments, areas to improve...';
+        const analysisLabel = isTraining ? 'Session Notes' : 'Post-Match Thoughts';
+
+        // Home/Away badge for match fixtures
+        const haBadge = isMatch && f.ha ? `<span class="fixture-ha">[${f.ha}]</span>` : '';
+        const tbcBadge = isMatch && f.tbc ? '<span class="fixture-tbc">TBC</span>' : '';
+        const weekLabel = isMatch && f.week ? `<span class="fixture-week">Wk ${f.week}</span>` : '';
+
+        // Detail: venue label changes for home/away
+        const venueLabel = isMatch && f.ha === 'H' ? 'Home Ground' : 'Venue';
+
+        return `
+          <div class="${cardClass}" data-id="${f.id}">
+            <div class="fixture-card-header" onclick="toggleCard('${f.id}')">
+              <div class="fixture-date">
+                <span class="day">${day}</span>
+                <span class="weekday">${weekday}</span>
+              </div>
+              <div class="fixture-info">
+                <span class="opponent">${f.opponent}${haBadge}${tbcBadge}</span>
+                <div class="fixture-meta">
+                  <span class="${badgeClass}">${f.type}</span>
+                  ${weekLabel}
+                </div>
+              </div>
+              <div class="fixture-time">${f.time}</div>
+              <div class="fixture-expand-icon">&#x203A;</div>
+            </div>
+            <div class="fixture-detail">
+              <div class="detail-grid">
+                <div class="detail-item">
+                  <label>${venueLabel}</label>
+                  <span><a href="${mapUrl}" target="_blank" rel="noopener">${f.location} &nearr;</a></span>
+                </div>
+                <div class="detail-item">
+                  <label>Type</label>
+                  <span>${f.type}${isMatch && f.ha ? (f.ha === 'H' ? ' — Home' : ' — Away') : ''}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Date</label>
+                  <span>${weekday} ${day} ${MONTHS[d.getMonth()]} ${d.getFullYear()}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Time</label>
+                  <span>${f.time}${isMatch && f.tbc ? ' (TBC)' : ''}</span>
+                </div>
+              </div>
+              <div class="analysis-section">
+                <label>${analysisLabel}</label>
+                <textarea
+                  placeholder="${placeholderText}"
+                  oninput="handleNoteInput('${f.id}', this)"
+                >${f.notes}</textarea>
+                <div class="save-indicator" id="save-${f.id}"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ══════════════════════════════════════
+    //  CARD TOGGLE
+    // ══════════════════════════════════════
+
+    function toggleCard(id) {
+      const card = document.querySelector(`.fixture-card[data-id="${id}"]`);
+      const wasExpanded = card.classList.contains('expanded');
+
+      document.querySelectorAll('.fixture-card.expanded').forEach(c => {
+        c.classList.remove('expanded');
+      });
+
+      if (!wasExpanded) {
+        card.classList.add('expanded');
+      }
+    }
+
+    // ══════════════════════════════════════
+    //  NOTE AUTO-SAVE
+    // ══════════════════════════════════════
+
+    let saveTimers = {};
+
+    function handleNoteInput(id, textarea) {
+      const fixture = fixtures.find(f => f.id === id);
+      if (fixture) fixture.notes = textarea.value;
+
+      const indicator = document.getElementById('save-' + id);
+      indicator.textContent = '';
+
+      clearTimeout(saveTimers[id]);
+      saveTimers[id] = setTimeout(() => {
+        saveNote(id, textarea.value);
+        indicator.textContent = 'Saved to device';
+        setTimeout(() => { indicator.textContent = ''; }, 2000);
+      }, 600);
+    }
+
+    // ══════════════════════════════════════
+    //  LEAGUE TABLE
+    // ══════════════════════════════════════
+
+    function renderLeague() {
+      const body = document.getElementById('league-body');
+      body.innerHTML = leagueData.map((t, i) => `
+        <tr class="${t.highlight ? 'highlight' : ''}">
+          <td class="pos">${i + 1}</td>
+          <td class="team-name">${t.team}</td>
+          <td>${t.p}</td>
+          <td>${t.w}</td>
+          <td>${t.l}</td>
+          <td>${t.d}</td>
+          <td>${t.nr}</td>
+          <td class="pts">${t.pts}</td>
+        </tr>
+      `).join('');
+    }
+
+    // ══════════════════════════════════════
+    //  TAB SWITCHING
+    // ══════════════════════════════════════
+
+    const tabs = ['fixtures', 'league', 'nets'];
+    const tabViews = {
+      fixtures: 'fixtures-view',
+      league: 'league-view',
+      nets: 'nets-view'
+    };
+
+    document.querySelectorAll('nav button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const tab = btn.dataset.tab;
+        tabs.forEach(t => {
+          document.getElementById(tabViews[t]).classList.toggle('visible', t === tab);
+        });
+        if (tab === 'nets') initNetsGame();
+      });
+    });
+
+    // ══════════════════════════════════════
+    //  MONTH NAVIGATION
+    // ══════════════════════════════════════
+
+    document.getElementById('prev-month').addEventListener('click', () => {
+      currentMonth--;
+      if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+      renderFixtures();
+    });
+
+    document.getElementById('next-month').addEventListener('click', () => {
+      currentMonth++;
+      if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+      renderFixtures();
+    });
+
+    // ══════════════════════════════════════
+    //  THE NETS — MINI-GAME
+    // ══════════════════════════════════════
+
+    let netsInitialized = false;
+
+    function initNetsGame() {
+      if (netsInitialized) return;
+      netsInitialized = true;
+
+      const canvas = document.getElementById('nets-canvas');
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width;
+      const H = canvas.height;
+
+      // Score
+      let throws = 0;
+      let hits = 0;
+
+      // Ball state
+      const BALL_RADIUS = 16;
+      const BALL_REST_X = W / 2;
+      const BALL_REST_Y = H - 60;
+      let ballX = BALL_REST_X;
+      let ballY = BALL_REST_Y;
+      let ballVX = 0;
+      let ballVY = 0;
+      let ballActive = false; // ball in flight
+      let dragging = false;
+      let dragStartX = 0;
+      let dragStartY = 0;
+      let dragTrail = []; // for flick velocity
+
+      // Stumps geometry
+      const STUMP_COUNT = 3;
+      const STUMP_WIDTH = 6;
+      const STUMP_HEIGHT = 64;
+      const STUMP_GAP = 14;
+      const STUMPS_TOP = 48;
+      const STUMPS_CENTER_X = W / 2;
+      const BAIL_Y = STUMPS_TOP;
+      const totalStumpsWidth = STUMP_COUNT * STUMP_WIDTH + (STUMP_COUNT - 1) * STUMP_GAP;
+      const stumpsLeftX = STUMPS_CENTER_X - totalStumpsWidth / 2;
+
+      // Stump hit state for animation
+      let stumpAngles = [0, 0, 0];
+      let bailsFlown = false;
+
+      // Result message
+      let resultMsg = '';
+      let resultTimer = null;
+
+      // ── Drawing ──
+      function drawPitch() {
+        // Crease line at stumps
+        ctx.strokeStyle = '#ccc';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(stumpsLeftX - 30, STUMPS_TOP + STUMP_HEIGHT + 4);
+        ctx.lineTo(stumpsLeftX + totalStumpsWidth + 30, STUMPS_TOP + STUMP_HEIGHT + 4);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Pitch strip
+        ctx.fillStyle = 'rgba(0,0,0,0.02)';
+        ctx.fillRect(W / 2 - 40, STUMPS_TOP + STUMP_HEIGHT + 4, 80, H - STUMPS_TOP - STUMP_HEIGHT - 40);
+      }
+
+      function drawStumps() {
+        for (let i = 0; i < STUMP_COUNT; i++) {
+          const sx = stumpsLeftX + i * (STUMP_WIDTH + STUMP_GAP);
+          const angle = stumpAngles[i];
+
+          ctx.save();
+          ctx.translate(sx + STUMP_WIDTH / 2, STUMPS_TOP + STUMP_HEIGHT);
+          ctx.rotate(angle);
+
+          // Stump body
+          ctx.fillStyle = '#111';
+          ctx.fillRect(-STUMP_WIDTH / 2, -STUMP_HEIGHT, STUMP_WIDTH, STUMP_HEIGHT);
+
+          // Pointed top
+          ctx.beginPath();
+          ctx.moveTo(-STUMP_WIDTH / 2, -STUMP_HEIGHT);
+          ctx.lineTo(0, -STUMP_HEIGHT - 6);
+          ctx.lineTo(STUMP_WIDTH / 2, -STUMP_HEIGHT);
+          ctx.fill();
+
+          ctx.restore();
+        }
+
+        // Bails
+        if (!bailsFlown) {
+          ctx.strokeStyle = '#111';
+          ctx.lineWidth = 3;
+          // Bail 1: stump 0 to stump 1
+          const b1x1 = stumpsLeftX + STUMP_WIDTH / 2;
+          const b1x2 = stumpsLeftX + (STUMP_WIDTH + STUMP_GAP) + STUMP_WIDTH / 2;
+          ctx.beginPath();
+          ctx.moveTo(b1x1, BAIL_Y - 4);
+          ctx.lineTo(b1x2, BAIL_Y - 4);
+          ctx.stroke();
+
+          // Bail 2: stump 1 to stump 2
+          const b2x1 = b1x2;
+          const b2x2 = stumpsLeftX + 2 * (STUMP_WIDTH + STUMP_GAP) + STUMP_WIDTH / 2;
+          ctx.beginPath();
+          ctx.moveTo(b2x1, BAIL_Y - 4);
+          ctx.lineTo(b2x2, BAIL_Y - 4);
+          ctx.stroke();
+        }
+      }
+
+      function drawBall() {
+        // Shadow
+        if (!ballActive) {
+          ctx.fillStyle = 'rgba(0,0,0,0.06)';
+          ctx.beginPath();
+          ctx.ellipse(ballX + 2, ballY + 2, BALL_RADIUS, BALL_RADIUS * 0.4, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Ball
+        ctx.fillStyle = '#111';
+        ctx.beginPath();
+        ctx.arc(ballX, ballY, BALL_RADIUS, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Seam
+        ctx.strokeStyle = '#F5F2ED';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(ballX, ballY, BALL_RADIUS * 0.6, -0.4, Math.PI + 0.4);
+        ctx.stroke();
+
+        // Highlight
+        ctx.fillStyle = 'rgba(245,242,237,0.15)';
+        ctx.beginPath();
+        ctx.arc(ballX - 4, ballY - 4, 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function drawResult() {
+        if (!resultMsg) return;
+        ctx.save();
+        ctx.font = '700 42px "Playfair Display", serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#111';
+        ctx.fillText(resultMsg, W / 2, H / 2 - 20);
+        ctx.restore();
+      }
+
+      function drawGuide() {
+        if (!dragging) return;
+        // Draw a subtle aim line
+        const dx = BALL_REST_X - ballX;
+        const dy = BALL_REST_Y - ballY;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        if (len < 5) return;
+
+        ctx.save();
+        ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 6]);
+        ctx.beginPath();
+        ctx.moveTo(ballX, ballY);
+        // Extend the line forward
+        const nx = dx / len;
+        const ny = dy / len;
+        ctx.lineTo(ballX + nx * 300, ballY + ny * 300);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+      }
+
+      function updateScore() {
+        document.getElementById('nets-throws').textContent = throws;
+        document.getElementById('nets-hits').textContent = hits;
+        document.getElementById('nets-accuracy').textContent = throws > 0
+          ? Math.round((hits / throws) * 100) + '%'
+          : '—';
+      }
+
+      // ── Hit Detection ──
+      function checkHit() {
+        // Check if ball overlaps the stumps area
+        const stumpsRight = stumpsLeftX + totalStumpsWidth;
+        const stumpsBottom = STUMPS_TOP + STUMP_HEIGHT;
+
+        // Ball center vs stumps bounding box (with some padding)
+        const hitX = ballX > stumpsLeftX - BALL_RADIUS && ballX < stumpsRight + BALL_RADIUS;
+        const hitY = ballY < stumpsBottom + BALL_RADIUS && ballY > STUMPS_TOP - 10;
+
+        return hitX && hitY;
+      }
+
+      function triggerHit() {
+        hits++;
+        bailsFlown = true;
+
+        // Randomize stump scatter
+        stumpAngles = [
+          -0.3 - Math.random() * 0.5,
+          -0.1 + Math.random() * 0.2,
+          0.3 + Math.random() * 0.5
+        ];
+
+        // Pick message
+        const messages = ['HOWZAT!', 'RATTLE!', 'OUT!', 'TIMBER!'];
+        resultMsg = messages[Math.floor(Math.random() * messages.length)];
+
+        updateScore();
+
+        clearTimeout(resultTimer);
+        resultTimer = setTimeout(resetBall, 1800);
+      }
+
+      function triggerMiss() {
+        resultMsg = '';
+        clearTimeout(resultTimer);
+        resultTimer = setTimeout(resetBall, 800);
+      }
+
+      function resetBall() {
+        ballX = BALL_REST_X;
+        ballY = BALL_REST_Y;
+        ballVX = 0;
+        ballVY = 0;
+        ballActive = false;
+        stumpAngles = [0, 0, 0];
+        bailsFlown = false;
+        resultMsg = '';
+      }
+
+      // ── Animation Loop ──
+      function frame() {
+        ctx.clearRect(0, 0, W, H);
+
+        drawPitch();
+        drawStumps();
+        drawGuide();
+        drawBall();
+        drawResult();
+
+        if (ballActive) {
+          ballX += ballVX;
+          ballY += ballVY;
+
+          // Slight deceleration (friction)
+          ballVX *= 0.99;
+          ballVY *= 0.99;
+
+          // Scale ball slightly as it goes up (perspective)
+          // Check hit
+          if (checkHit() && !bailsFlown) {
+            ballActive = false;
+            triggerHit();
+          }
+
+          // Ball went off screen
+          if (ballY < -30 || ballX < -30 || ballX > W + 30 || ballY > H + 30) {
+            ballActive = false;
+            triggerMiss();
+          }
+        }
+
+        requestAnimationFrame(frame);
+      }
+
+      // ── Input Handling ──
+      function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+          x: (clientX - rect.left) * (W / rect.width),
+          y: (clientY - rect.top) * (H / rect.height)
+        };
+      }
+
+      function isOnBall(px, py) {
+        const dx = px - ballX;
+        const dy = py - ballY;
+        return dx * dx + dy * dy < (BALL_RADIUS + 10) * (BALL_RADIUS + 10);
+      }
+
+      function onDown(e) {
+        if (ballActive) return;
+        const p = getPos(e);
+        if (isOnBall(p.x, p.y)) {
+          dragging = true;
+          dragTrail = [{ x: p.x, y: p.y, t: Date.now() }];
+          e.preventDefault();
+        }
+      }
+
+      function onMove(e) {
+        if (!dragging) return;
+        e.preventDefault();
+        const p = getPos(e);
+
+        // Move ball with finger/mouse but keep it near rest area
+        ballX = p.x;
+        ballY = p.y;
+
+        dragTrail.push({ x: p.x, y: p.y, t: Date.now() });
+        // Keep only recent samples
+        if (dragTrail.length > 8) dragTrail.shift();
+      }
+
+      function onUp(e) {
+        if (!dragging) return;
+        dragging = false;
+
+        // Calculate flick velocity from trail
+        if (dragTrail.length < 2) {
+          resetBall();
+          return;
+        }
+
+        const last = dragTrail[dragTrail.length - 1];
+        // Find a point ~50-100ms ago for velocity
+        let ref = dragTrail[0];
+        for (let i = dragTrail.length - 2; i >= 0; i--) {
+          if (last.t - dragTrail[i].t > 40) {
+            ref = dragTrail[i];
+            break;
+          }
+        }
+
+        const dt = Math.max(last.t - ref.t, 1);
+        let vx = (last.x - ref.x) / dt * 16;
+        let vy = (last.y - ref.y) / dt * 16;
+
+        const speed = Math.sqrt(vx * vx + vy * vy);
+
+        if (speed < 3) {
+          // Too slow — just reset
+          resetBall();
+          return;
+        }
+
+        // Cap max speed
+        const maxSpeed = 28;
+        if (speed > maxSpeed) {
+          const scale = maxSpeed / speed;
+          vx *= scale;
+          vy *= scale;
+        }
+
+        ballVX = vx;
+        ballVY = vy;
+        ballActive = true;
+        throws++;
+        updateScore();
+      }
+
+      // Mouse
+      canvas.addEventListener('mousedown', onDown);
+      canvas.addEventListener('mousemove', onMove);
+      canvas.addEventListener('mouseup', onUp);
+      canvas.addEventListener('mouseleave', onUp);
+
+      // Touch
+      canvas.addEventListener('touchstart', onDown, { passive: false });
+      canvas.addEventListener('touchmove', onMove, { passive: false });
+      canvas.addEventListener('touchend', onUp);
+      canvas.addEventListener('touchcancel', onUp);
+
+      // Reset button
+      document.getElementById('nets-reset').addEventListener('click', () => {
+        throws = 0;
+        hits = 0;
+        updateScore();
+        resetBall();
+      });
+
+      // Start
+      frame();
+    }
+
+    // ══════════════════════════════════════
+    //  INIT
+    // ══════════════════════════════════════
+
+    loadNotes();
+    renderFixtures();
+    renderLeague();
+  </script>
+
+</body>
+</html>
